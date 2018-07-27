@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <title>Js Game Hackerthon</title>
+    </head>
+    <body>
+        <header>Get the strap</header>
+        <div class="main">
+            <canvas id="gameCanvas" width="800" height="450"></canvas>
+        </div>
+    </body>
+    <script>
+            var canvas;
+            var canvasContext;
+            var ballX = 10;
+            var ballSpeedX = 30;
+            var ballY = 10;
+            var ballSpeedY = 10;
+       
+           var player1Score = 0;
+           var player2Score = 0;
+           var player1Y = 250;
+           const PLAYER1_SIZE = 100;
+           var player2Y = 350;
+           const PLAYER2_SIZE = 100;
+           const PLAYER_WIDTH = 10;
+           function calMousePos(evt)
+           {
+               var rect = canvas.getBoundingClientRect();
+               var root = document.documentElement;
+               var mouseX = evt.clientX - rect.left - root.scrollLeft;
+               var mouseY = evt.clientY - rect.top - root.scrollTop;
+               return {
+                   x: mouseX,
+                   y: mouseY
+               };
+           }
+       
+            window.onload = function()
+            {
+               canvas = document.getElementById('gameCanvas');
+               canvasContext = canvas.getContext('2d');
+               var framesPerSec = 20;
+               setInterval(drawBoardAndPlayers, 1000/framesPerSec);
+       
+               canvas.addEventListener('mousemove', function(evt){
+                   var mousePosition = calMousePos(evt);
+                   player1Y = mousePosition.y - (PLAYER1_SIZE/2);
+               });
+            }
+       
+            function drawBoardAndPlayers()
+            {
+               ballMovement();
+               computerMovement();
+               canvasContext.fillStyle = 'gray';
+               canvasContext.fillRect(0,0, canvas.width, canvas.height)
+               canvasContext.fillStyle = 'dodgerblue';
+               canvasContext.fillRect(0, player1Y, PLAYER_WIDTH, PLAYER1_SIZE);
+               canvasContext.fillStyle = 'dodgerblue';
+               canvasContext.fillRect((canvas.width - PLAYER_WIDTH),player2Y, PLAYER_WIDTH, PLAYER2_SIZE);
+               drawBall();
+               canvasContext.fillText(player1Score, 100, 100);
+               canvasContext.fillText(player2Score, canvas.width - 100, 100);
+            }
+       
+            function computerMovement()
+            {
+                   if (ballY - 35 < (player2Y + (PLAYER2_SIZE/2)))
+                    {
+                      player2Y -= 10;
+                    }
+                    else if (ballY + 35 > (player2Y + (PLAYER2_SIZE/2)))
+                    {
+                       player2Y += 10;
+                    }  
+            }
+            
+            function ballReset()
+            {
+               ballSpeedX = ballSpeedX * -1;
+               ballX = canvas.width/2;
+               ballY = canvas.height/2;
+            }
+       
+            function drawBall ()
+            {
+               canvasContext.fillStyle = 'white';
+               canvasContext.beginPath();
+               canvasContext.arc(ballX, ballY, 10, 0, Math.PI*2, true);
+               canvasContext.fill();
+            }
+       
+            function ballMovement()
+            {
+               ballX = ballX + ballSpeedX;
+               if (ballX > canvas.width)
+               {
+                   if (ballY > player2Y && ballY < (player2Y + PLAYER2_SIZE))
+                   {
+                       ballSpeedX = ballSpeedX * -1;
+                       var diff = ballY - (player2Y + PLAYER2_SIZE/2);
+                       ballSpeedY = diff * .55;
+                       console.log("player two!", player2Y);
+                   }
+                   else
+                   {
+                       ballReset();
+                       player1Score++;
+                   }
+               }
+                  
+               if (ballX < 0)
+               {
+                   if (ballY > player1Y && ballY < (player1Y + PLAYER1_SIZE))
+                   {
+                       ballSpeedX = ballSpeedX * -1;
+                       var diff = ballY - (player1Y + PLAYER1_SIZE/2);
+                       ballSpeedY = diff * .55;
+                       console.log("player one!", player1Y);
+                   }
+                    
+                   else
+                   {
+                       ballReset();
+                       player2Score++;
+                   }
+               }
+                   
+               ballY = ballY + ballSpeedY;
+               if (ballY > canvas.height)
+                   ballSpeedY = ballSpeedY * -1;
+               if (ballY < 0)
+                   ballSpeedY = ballSpeedY * -1;
+            }
+            console.log('script loaded');
+        </script>       
+</html>
